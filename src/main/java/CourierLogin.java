@@ -4,54 +4,47 @@ import io.restassured.response.ValidatableResponse;
 
 import static io.restassured.RestAssured.given;
 
-public class CourierLogin {
-    private static final String contentType = "Content-type";
-    private static final String json = "application/json";
-    private static final String COURIER_PATH ="https://qa-scooter.praktikum-services.ru/api/v1/courier/";
-    private static final String COURIER_LOGIN_PATH = "https://qa-scooter.praktikum-services.ru/api/v1/courier/login/";
+public class CourierLogin extends RestConfig {
+    private static final String CONTENT_TYPE = "Content-type";
+    private static final String JSON = "application/json";
+    private static final String COURIER_PATH ="/api/v1/courier/";
+    private static final String COURIER_LOGIN_PATH = "/api/v1/courier/login/";
 
     @Step("Создание курьера")
-    public boolean create(Courier courier){
+    public ValidatableResponse create(Courier courier){
         return given()
-                .header(contentType, json)
+                .spec(getBaseSpec())
+                .header(CONTENT_TYPE, JSON)
                 .body(courier)
                 .when()
                 .post(COURIER_PATH)
-                .then()
-                .assertThat()
-                .statusCode(201)
-                .extract()
-                .path("ok");
+                .then();
+
     }
     @Step("Авторизация курьера")
-    public int login(String courierPartData){
+    public ValidatableResponse login(String courierPartData){
         return  given()
-                .header(contentType, json)
+                .spec(getBaseSpec())
+                .header(CONTENT_TYPE, JSON)
                 .body(courierPartData)
                 .when()
-                .post(COURIER_PATH + "login")
-                .then()
-                .assertThat()
-                .statusCode(200)
-                .extract()
-                .path("id");
+                .post(COURIER_PATH + "login").then();
     }
     @Step("Удалить курьера {0}")
-    public boolean delete(int id){
+    public ValidatableResponse delete(int id){
         return given()
-                .header(contentType, json)
+                .spec(getBaseSpec())
+                .header(CONTENT_TYPE, JSON)
                 .when()
                 .delete(COURIER_PATH + id)
-                .then()
-                .assertThat()
-                .statusCode(200)
-                .extract()
-                .path("ok");
+                .then();
+
     }
 
     @Step("Получить ответ о созданном курьере")
     public ValidatableResponse getCreateCourierResponse(Courier courier){
         return given()
+                .spec(getBaseSpec())
                 .header("Content-type", "application/json")
                 .body(courier)
                 .when()
@@ -61,10 +54,11 @@ public class CourierLogin {
 
     @Step("Получить login курьера в ответе")
     public ValidatableResponse getLoginCourierResponse(String login, String password){
-        CourierAccount courierCredentials = new CourierAccount();
+        CourierAccount courierCredentials = new CourierAccount(login,password);
         return given()
+                .spec(getBaseSpec())
                 .header("Content-type", "application/json")
-                .body(courierCredentials.account(login,password))
+                .body(courierCredentials.account())
                 .when()
                 .post(COURIER_LOGIN_PATH)
                 .then();

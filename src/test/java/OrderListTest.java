@@ -1,15 +1,18 @@
 import io.qameta.allure.junit4.DisplayName;
+import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.List;
 
 import static org.hamcrest.Matchers.notNullValue;
 
 public class OrderListTest {
-    OrderCard card = new OrderCard();
 
     @Test
     @DisplayName("Получить список заказа. Список не пустой")
     public void getOrderListShouldNotNull() {
-        card.getOrderListResponse().statusCode(200);
-        card.getOrderListResponse().assertThat().body("orders",notNullValue());
+        OrderCard oc = new OrderCard();
+        List<Integer> idList = oc.getOrders().assertThat().statusCode(200).extract().path("orders.id");
+        Assert.assertFalse("Empty order list", idList.isEmpty());
     }
 }

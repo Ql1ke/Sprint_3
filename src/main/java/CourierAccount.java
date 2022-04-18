@@ -1,11 +1,22 @@
+import com.google.gson.Gson;
 import io.qameta.allure.Step;
 
 public class CourierAccount {
-        @Step("Создание аккаунта")
-        public String account(String login, String password) {
-            return "{\"login\":\"" + login + "\","
-                    + "\"password\":\"" + password +"\"}";
-        }
+
+    private final String login;
+    private final String password;
+
+    public CourierAccount(String login, String password) {
+        this.login = login;
+        this.password = password;
     }
+
+    @Step("Создание аккаунта")
+    public String account() {
+        Gson gson = new Gson();
+        return gson.toJson(this);
+
+    }
+}
 
 
